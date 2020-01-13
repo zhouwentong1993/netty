@@ -74,6 +74,8 @@ public class ServerBootstrap extends AbstractBootstrap<ServerBootstrap, ServerCh
      * {@link EventLoopGroup}'s are used to handle all the events and IO for {@link ServerChannel} and
      * {@link Channel}'s.
      */
+    // 绑定 Reactor 线程池，BossGroup & WorkerGroup。
+    // 这两个 EventLoopGroup 本质上就是线程池
     public ServerBootstrap group(EventLoopGroup parentGroup, EventLoopGroup childGroup) {
         super.group(parentGroup);
         if (this.childGroup != null) {
