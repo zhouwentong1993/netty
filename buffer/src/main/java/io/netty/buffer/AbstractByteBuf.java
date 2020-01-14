@@ -279,6 +279,7 @@ public abstract class AbstractByteBuf extends ByteBuf {
 
     @Override
     public ByteBuf ensureWritable(int minWritableBytes) {
+        // 都喜欢这么命名
         ensureWritable0(checkPositiveOrZero(minWritableBytes, "minWritableBytes"));
         return this;
     }
@@ -1071,6 +1072,7 @@ public abstract class AbstractByteBuf extends ByteBuf {
 
     @Override
     public ByteBuf writeBytes(byte[] src, int srcIndex, int length) {
+        // 确保能写
         ensureWritable(length);
         setBytes(writerIndex, src, srcIndex, length);
         writerIndex += length;
