@@ -68,501 +68,501 @@
   </developers>
 
   <profiles>
-    <profile>
-      <id>aggregate</id>
-      <properties>
-        <checkstyle.skip>true</checkstyle.skip>
-      </properties>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <version>3.2.0</version>
-            <executions>
-              <execution>
-                <id>aggregate</id>
-                <goals>
-                  <goal>aggregate</goal>
-                </goals>
-              </execution>
-            </executions>
-            <configuration>
-              <skippedModules>
-                netty-all,netty-bom,netty-testsuite,netty-testsuite-autobahn,netty-testsuite-http2,
-                netty-testsuite-native,netty-testsuite-native-image,netty-testsuite-native-image-client,
-                netty-testsuite-native-image-client-runtime-init,netty-testsuite-osgi,netty-testsuite-shading,
-                netty-transport-blockhound-tests,netty-transport-native-unix-common-tests,netty-microbench,
-                netty-dev-tools,netty-example
-              </skippedModules>
-              <sourceFileExcludes>
-                <exclude>**/com/sun/**/*.java</exclude>
-                <exclude>**/example/**/*.java</exclude>
-                <exclude>**/testsuite/**/*.java</exclude>
-                <exclude>**/microbench/**/*.java</exclude>
-                <exclude>**/microbenchmark/**/*.java</exclude>
-                <exclude>**/generated/**/*.java</exclude>
-                <exclude>**/*Benchmark.java</exclude>
-                <exclude>**/*Bench.java</exclude>
-                <exclude>**/*Test.java</exclude>
-              </sourceFileExcludes>
-              <docfilessubdirs>true</docfilessubdirs>
-              <outputDirectory>${project.build.directory}/api</outputDirectory>
-              <overview>${project.basedir}/src/javadoc/overview.html</overview>
-              <doctitle>Netty API Reference (${project.version})</doctitle>
-              <windowtitle>Netty API Reference (${project.version})</windowtitle>
-              <detectJavaApiLink>false</detectJavaApiLink>
-              <links>
-                <link>https://docs.oracle.com/javase/8/docs/api/</link>
-                <link>https://developers.google.com/protocol-buffers/docs/reference/java/</link>
-                <link>https://www.slf4j.org/apidocs/</link>
-              </links>
-              <groups>
-                <group>
-                  <title>Low-level data representation</title>
-                  <packages>io.netty.buffer*</packages>
-                </group>
-                <group>
-                  <title>Central interface for all I/O operations</title>
-                  <packages>io.netty.channel*</packages>
-                </group>
-                <group>
-                  <title>Client &amp; Server bootstrapping utilities</title>
-                  <packages>io.netty.bootstrap*</packages>
-                </group>
-                <group>
-                  <title>Reusable I/O event interceptors</title>
-                  <packages>io.netty.handler*</packages>
-                </group>
-                <group>
-                  <title>DNS / Host resolvers</title>
-                  <packages>io.netty.resolver*</packages>
-                </group>
-                <group>
-                  <title>Utils</title>
-                  <packages>io.netty.util*</packages>
-                </group>
-              </groups>
-              <locale>en_US</locale>
-            </configuration>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-jxr-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>aggregate</id>
-                <goals>
-                  <goal>aggregate</goal>
-                </goals>
-              </execution>
-            </executions>
-            <configuration>
-              <linkJavadoc>true</linkJavadoc>
-              <destDir>${project.build.directory}/site/xref</destDir>
-              <javadocDir>${project.build.directory}/site/apidocs</javadocDir>
-              <docTitle>Netty Source Xref (${project.version})</docTitle>
-              <windowTitle>Netty Source Xref (${project.version})</windowTitle>
-              <excludes>
-                <exclude>**/com/sun/**/*.java</exclude>
-                <exclude>**/microbench/**/*.java</exclude>
-                <exclude>**/microbenchmark/**/*.java</exclude>
-              </excludes>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-    <!-- Detect if we use GraalVM and if so enable the native image testsuite -->
-    <profile>
-      <id>graal</id>
-      <activation>
-        <file>
-          <!-- GraalVM Component Updater should exists when using GraalVM-->
-          <exists>${java.home}/bin/gu</exists>
-        </file>
-      </activation>
-      <properties>
-        <skipNativeImageTestsuite>false</skipNativeImageTestsuite>
-        <forbiddenapis.skip>true</forbiddenapis.skip>
-        <testJvm />
-      </properties>
-    </profile>
-    <profile>
-      <id>java20</id>
-      <activation>
-        <jdk>20</jdk>
-      </activation>
-      <properties>
-        <!-- Not use alpn agent as Java11+ supports alpn out of the box -->
-        <argLine.alpnAgent />
-        <argLine.java9.extras />
-        <!-- Export some stuff which is used during our tests -->
-        <argLine.java9>--illegal-access=deny ${argLine.java9.extras}</argLine.java9>
-        <forbiddenapis.skip>true</forbiddenapis.skip>
-        <!-- 1.4.x does not work in Java10+ -->
-        <jboss.marshalling.version>2.0.5.Final</jboss.marshalling.version>
-        <!-- We need to use 1.8 as otherwise default methods are not picked up and so result in compile errors for
-             our EventExecutorGroup implementations
-        -->
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <!-- pax-exam does not work on latest Java12 EA 22 build -->
-        <skipOsgiTestsuite>true</skipOsgiTestsuite>
-        <revapi.skip>true</revapi.skip>
-      </properties>
-    </profile>
-    <profile>
-      <id>java19</id>
-      <activation>
-        <jdk>19</jdk>
-      </activation>
-      <properties>
-        <!-- Not use alpn agent as Java11+ supports alpn out of the box -->
-        <argLine.alpnAgent />
-        <argLine.java9.extras />
-        <!-- Export some stuff which is used during our tests -->
-        <argLine.java9>--illegal-access=deny ${argLine.java9.extras}</argLine.java9>
-        <forbiddenapis.skip>true</forbiddenapis.skip>
-        <!-- 1.4.x does not work in Java10+ -->
-        <jboss.marshalling.version>2.0.5.Final</jboss.marshalling.version>
-        <!-- We need to use 1.8 as otherwise default methods are not picked up and so result in compile errors for
-             our EventExecutorGroup implementations
-        -->
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <!-- pax-exam does not work on latest Java12 EA 22 build -->
-        <skipOsgiTestsuite>true</skipOsgiTestsuite>
-        <revapi.skip>true</revapi.skip>
-      </properties>
-    </profile>
-    <profile>
-      <id>java18</id>
-      <activation>
-        <jdk>18</jdk>
-      </activation>
-      <properties>
-        <!-- Not use alpn agent as Java11+ supports alpn out of the box -->
-        <argLine.alpnAgent />
-        <argLine.java9.extras />
-        <!-- Export some stuff which is used during our tests -->
-        <argLine.java9>--illegal-access=deny ${argLine.java9.extras}</argLine.java9>
-        <forbiddenapis.skip>true</forbiddenapis.skip>
-        <!-- 1.4.x does not work in Java10+ -->
-        <jboss.marshalling.version>2.0.5.Final</jboss.marshalling.version>
-        <!-- This is the minimum supported by Java12+ -->
-        <maven.compiler.source>1.7</maven.compiler.source>
-        <maven.compiler.target>1.7</maven.compiler.target>
-        <!-- pax-exam does not work on latest Java12 EA 22 build -->
-        <skipOsgiTestsuite>true</skipOsgiTestsuite>
-        <revapi.skip>true</revapi.skip>
-      </properties>
-    </profile>
-    <profile>
-      <id>java17</id>
-      <activation>
-        <jdk>17</jdk>
-      </activation>
-      <properties>
-        <!-- Not use alpn agent as Java11+ supports alpn out of the box -->
-        <argLine.alpnAgent />
-        <argLine.java9.extras />
-        <!-- Export some stuff which is used during our tests -->
-        <argLine.java9>--illegal-access=deny ${argLine.java9.extras}</argLine.java9>
-        <forbiddenapis.skip>true</forbiddenapis.skip>
-        <!-- 1.4.x does not work in Java10+ -->
-        <jboss.marshalling.version>2.0.5.Final</jboss.marshalling.version>
-        <!-- This is the minimum supported by Java12+ -->
-        <maven.compiler.source>1.7</maven.compiler.source>
-        <maven.compiler.target>1.7</maven.compiler.target>
-        <!-- pax-exam does not work on latest Java12 EA 22 build -->
-        <skipOsgiTestsuite>true</skipOsgiTestsuite>
-      </properties>
-    </profile>
+<!--    <profile>-->
+<!--      <id>aggregate</id>-->
+<!--      <properties>-->
+<!--        <checkstyle.skip>true</checkstyle.skip>-->
+<!--      </properties>-->
+<!--      <build>-->
+<!--        <plugins>-->
+<!--          <plugin>-->
+<!--            <groupId>org.apache.maven.plugins</groupId>-->
+<!--            <artifactId>maven-javadoc-plugin</artifactId>-->
+<!--            <version>3.2.0</version>-->
+<!--            <executions>-->
+<!--              <execution>-->
+<!--                <id>aggregate</id>-->
+<!--                <goals>-->
+<!--                  <goal>aggregate</goal>-->
+<!--                </goals>-->
+<!--              </execution>-->
+<!--            </executions>-->
+<!--            <configuration>-->
+<!--              <skippedModules>-->
+<!--                netty-all,netty-bom,netty-testsuite,netty-testsuite-autobahn,netty-testsuite-http2,-->
+<!--                netty-testsuite-native,netty-testsuite-native-image,netty-testsuite-native-image-client,-->
+<!--                netty-testsuite-native-image-client-runtime-init,netty-testsuite-osgi,netty-testsuite-shading,-->
+<!--                netty-transport-blockhound-tests,netty-transport-native-unix-common-tests,netty-microbench,-->
+<!--                netty-dev-tools,netty-example-->
+<!--              </skippedModules>-->
+<!--              <sourceFileExcludes>-->
+<!--                <exclude>**/com/sun/**/*.java</exclude>-->
+<!--                <exclude>**/example/**/*.java</exclude>-->
+<!--                <exclude>**/testsuite/**/*.java</exclude>-->
+<!--                <exclude>**/microbench/**/*.java</exclude>-->
+<!--                <exclude>**/microbenchmark/**/*.java</exclude>-->
+<!--                <exclude>**/generated/**/*.java</exclude>-->
+<!--                <exclude>**/*Benchmark.java</exclude>-->
+<!--                <exclude>**/*Bench.java</exclude>-->
+<!--                <exclude>**/*Test.java</exclude>-->
+<!--              </sourceFileExcludes>-->
+<!--              <docfilessubdirs>true</docfilessubdirs>-->
+<!--              <outputDirectory>${project.build.directory}/api</outputDirectory>-->
+<!--              <overview>${project.basedir}/src/javadoc/overview.html</overview>-->
+<!--              <doctitle>Netty API Reference (${project.version})</doctitle>-->
+<!--              <windowtitle>Netty API Reference (${project.version})</windowtitle>-->
+<!--              <detectJavaApiLink>false</detectJavaApiLink>-->
+<!--              <links>-->
+<!--                <link>https://docs.oracle.com/javase/8/docs/api/</link>-->
+<!--                <link>https://developers.google.com/protocol-buffers/docs/reference/java/</link>-->
+<!--                <link>https://www.slf4j.org/apidocs/</link>-->
+<!--              </links>-->
+<!--              <groups>-->
+<!--                <group>-->
+<!--                  <title>Low-level data representation</title>-->
+<!--                  <packages>io.netty.buffer*</packages>-->
+<!--                </group>-->
+<!--                <group>-->
+<!--                  <title>Central interface for all I/O operations</title>-->
+<!--                  <packages>io.netty.channel*</packages>-->
+<!--                </group>-->
+<!--                <group>-->
+<!--                  <title>Client &amp; Server bootstrapping utilities</title>-->
+<!--                  <packages>io.netty.bootstrap*</packages>-->
+<!--                </group>-->
+<!--                <group>-->
+<!--                  <title>Reusable I/O event interceptors</title>-->
+<!--                  <packages>io.netty.handler*</packages>-->
+<!--                </group>-->
+<!--                <group>-->
+<!--                  <title>DNS / Host resolvers</title>-->
+<!--                  <packages>io.netty.resolver*</packages>-->
+<!--                </group>-->
+<!--                <group>-->
+<!--                  <title>Utils</title>-->
+<!--                  <packages>io.netty.util*</packages>-->
+<!--                </group>-->
+<!--              </groups>-->
+<!--              <locale>en_US</locale>-->
+<!--            </configuration>-->
+<!--          </plugin>-->
+<!--          <plugin>-->
+<!--            <groupId>org.apache.maven.plugins</groupId>-->
+<!--            <artifactId>maven-jxr-plugin</artifactId>-->
+<!--            <executions>-->
+<!--              <execution>-->
+<!--                <id>aggregate</id>-->
+<!--                <goals>-->
+<!--                  <goal>aggregate</goal>-->
+<!--                </goals>-->
+<!--              </execution>-->
+<!--            </executions>-->
+<!--            <configuration>-->
+<!--              <linkJavadoc>true</linkJavadoc>-->
+<!--              <destDir>${project.build.directory}/site/xref</destDir>-->
+<!--              <javadocDir>${project.build.directory}/site/apidocs</javadocDir>-->
+<!--              <docTitle>Netty Source Xref (${project.version})</docTitle>-->
+<!--              <windowTitle>Netty Source Xref (${project.version})</windowTitle>-->
+<!--              <excludes>-->
+<!--                <exclude>**/com/sun/**/*.java</exclude>-->
+<!--                <exclude>**/microbench/**/*.java</exclude>-->
+<!--                <exclude>**/microbenchmark/**/*.java</exclude>-->
+<!--              </excludes>-->
+<!--            </configuration>-->
+<!--          </plugin>-->
+<!--        </plugins>-->
+<!--      </build>-->
+<!--    </profile>-->
+<!--    &lt;!&ndash; Detect if we use GraalVM and if so enable the native image testsuite &ndash;&gt;-->
+<!--    <profile>-->
+<!--      <id>graal</id>-->
+<!--      <activation>-->
+<!--        <file>-->
+<!--          &lt;!&ndash; GraalVM Component Updater should exists when using GraalVM&ndash;&gt;-->
+<!--          <exists>${java.home}/bin/gu</exists>-->
+<!--        </file>-->
+<!--      </activation>-->
+<!--      <properties>-->
+<!--        <skipNativeImageTestsuite>false</skipNativeImageTestsuite>-->
+<!--        <forbiddenapis.skip>true</forbiddenapis.skip>-->
+<!--        <testJvm />-->
+<!--      </properties>-->
+<!--    </profile>-->
+<!--    <profile>-->
+<!--      <id>java20</id>-->
+<!--      <activation>-->
+<!--        <jdk>20</jdk>-->
+<!--      </activation>-->
+<!--      <properties>-->
+<!--        &lt;!&ndash; Not use alpn agent as Java11+ supports alpn out of the box &ndash;&gt;-->
+<!--        <argLine.alpnAgent />-->
+<!--        <argLine.java9.extras />-->
+<!--        &lt;!&ndash; Export some stuff which is used during our tests &ndash;&gt;-->
+<!--        <argLine.java9>&#45;&#45;illegal-access=deny ${argLine.java9.extras}</argLine.java9>-->
+<!--        <forbiddenapis.skip>true</forbiddenapis.skip>-->
+<!--        &lt;!&ndash; 1.4.x does not work in Java10+ &ndash;&gt;-->
+<!--        <jboss.marshalling.version>2.0.5.Final</jboss.marshalling.version>-->
+<!--        &lt;!&ndash; We need to use 1.8 as otherwise default methods are not picked up and so result in compile errors for-->
+<!--             our EventExecutorGroup implementations-->
+<!--        &ndash;&gt;-->
+<!--        <maven.compiler.source>1.8</maven.compiler.source>-->
+<!--        <maven.compiler.target>1.8</maven.compiler.target>-->
+<!--        &lt;!&ndash; pax-exam does not work on latest Java12 EA 22 build &ndash;&gt;-->
+<!--        <skipOsgiTestsuite>true</skipOsgiTestsuite>-->
+<!--        <revapi.skip>true</revapi.skip>-->
+<!--      </properties>-->
+<!--    </profile>-->
+<!--    <profile>-->
+<!--      <id>java19</id>-->
+<!--      <activation>-->
+<!--        <jdk>19</jdk>-->
+<!--      </activation>-->
+<!--      <properties>-->
+<!--        &lt;!&ndash; Not use alpn agent as Java11+ supports alpn out of the box &ndash;&gt;-->
+<!--        <argLine.alpnAgent />-->
+<!--        <argLine.java9.extras />-->
+<!--        &lt;!&ndash; Export some stuff which is used during our tests &ndash;&gt;-->
+<!--&lt;!&ndash;        <argLine.java9>&#45;&#45;illegal-access=deny ${argLine.java9.extras}</argLine.java9>&ndash;&gt;-->
+<!--        <forbiddenapis.skip>true</forbiddenapis.skip>-->
+<!--        &lt;!&ndash; 1.4.x does not work in Java10+ &ndash;&gt;-->
+<!--        <jboss.marshalling.version>2.0.5.Final</jboss.marshalling.version>-->
+<!--        &lt;!&ndash; We need to use 1.8 as otherwise default methods are not picked up and so result in compile errors for-->
+<!--             our EventExecutorGroup implementations-->
+<!--        &ndash;&gt;-->
+<!--        <maven.compiler.source>1.8</maven.compiler.source>-->
+<!--        <maven.compiler.target>1.8</maven.compiler.target>-->
+<!--        &lt;!&ndash; pax-exam does not work on latest Java12 EA 22 build &ndash;&gt;-->
+<!--        <skipOsgiTestsuite>true</skipOsgiTestsuite>-->
+<!--        <revapi.skip>true</revapi.skip>-->
+<!--      </properties>-->
+<!--    </profile>-->
+<!--    <profile>-->
+<!--      <id>java18</id>-->
+<!--      <activation>-->
+<!--        <jdk>18</jdk>-->
+<!--      </activation>-->
+<!--      <properties>-->
+<!--        &lt;!&ndash; Not use alpn agent as Java11+ supports alpn out of the box &ndash;&gt;-->
+<!--        <argLine.alpnAgent />-->
+<!--        <argLine.java9.extras />-->
+<!--        &lt;!&ndash; Export some stuff which is used during our tests &ndash;&gt;-->
+<!--        <argLine.java9>&#45;&#45;illegal-access=deny ${argLine.java9.extras}</argLine.java9>-->
+<!--        <forbiddenapis.skip>true</forbiddenapis.skip>-->
+<!--        &lt;!&ndash; 1.4.x does not work in Java10+ &ndash;&gt;-->
+<!--        <jboss.marshalling.version>2.0.5.Final</jboss.marshalling.version>-->
+<!--        &lt;!&ndash; This is the minimum supported by Java12+ &ndash;&gt;-->
+<!--        <maven.compiler.source>1.7</maven.compiler.source>-->
+<!--        <maven.compiler.target>1.7</maven.compiler.target>-->
+<!--        &lt;!&ndash; pax-exam does not work on latest Java12 EA 22 build &ndash;&gt;-->
+<!--        <skipOsgiTestsuite>true</skipOsgiTestsuite>-->
+<!--        <revapi.skip>true</revapi.skip>-->
+<!--      </properties>-->
+<!--    </profile>-->
+<!--    <profile>-->
+<!--      <id>java17</id>-->
+<!--      <activation>-->
+<!--        <jdk>17</jdk>-->
+<!--      </activation>-->
+<!--      <properties>-->
+<!--        &lt;!&ndash; Not use alpn agent as Java11+ supports alpn out of the box &ndash;&gt;-->
+<!--        <argLine.alpnAgent />-->
+<!--        <argLine.java9.extras />-->
+<!--        &lt;!&ndash; Export some stuff which is used during our tests &ndash;&gt;-->
+<!--        <argLine.java9>&#45;&#45;illegal-access=deny ${argLine.java9.extras}</argLine.java9>-->
+<!--        <forbiddenapis.skip>true</forbiddenapis.skip>-->
+<!--        &lt;!&ndash; 1.4.x does not work in Java10+ &ndash;&gt;-->
+<!--        <jboss.marshalling.version>2.0.5.Final</jboss.marshalling.version>-->
+<!--        &lt;!&ndash; This is the minimum supported by Java12+ &ndash;&gt;-->
+<!--        <maven.compiler.source>1.7</maven.compiler.source>-->
+<!--        <maven.compiler.target>1.7</maven.compiler.target>-->
+<!--        &lt;!&ndash; pax-exam does not work on latest Java12 EA 22 build &ndash;&gt;-->
+<!--        <skipOsgiTestsuite>true</skipOsgiTestsuite>-->
+<!--      </properties>-->
+<!--    </profile>-->
 
-    <!-- JDK16 -->
-    <profile>
-      <id>java16</id>
-      <activation>
-        <jdk>16</jdk>
-      </activation>
-      <properties>
-        <!-- Not use alpn agent as Java11+ supports alpn out of the box -->
-        <argLine.alpnAgent />
-        <argLine.java9.extras />
-        <!-- Export some stuff which is used during our tests -->
-        <argLine.java9>--illegal-access=deny ${argLine.java9.extras}</argLine.java9>
-        <forbiddenapis.skip>true</forbiddenapis.skip>
-        <!-- 1.4.x does not work in Java10+ -->
-        <jboss.marshalling.version>2.0.5.Final</jboss.marshalling.version>
-        <!-- This is the minimum supported by Java12+ -->
-        <maven.compiler.source>1.7</maven.compiler.source>
-        <maven.compiler.target>1.7</maven.compiler.target>
-        <!-- pax-exam does not work on latest Java12 EA 22 build -->
-        <skipOsgiTestsuite>true</skipOsgiTestsuite>
-      </properties>
-    </profile>
+<!--    &lt;!&ndash; JDK16 &ndash;&gt;-->
+<!--    <profile>-->
+<!--      <id>java16</id>-->
+<!--      <activation>-->
+<!--        <jdk>16</jdk>-->
+<!--      </activation>-->
+<!--      <properties>-->
+<!--        &lt;!&ndash; Not use alpn agent as Java11+ supports alpn out of the box &ndash;&gt;-->
+<!--        <argLine.alpnAgent />-->
+<!--        <argLine.java9.extras />-->
+<!--        &lt;!&ndash; Export some stuff which is used during our tests &ndash;&gt;-->
+<!--        <argLine.java9>&#45;&#45;illegal-access=deny ${argLine.java9.extras}</argLine.java9>-->
+<!--        <forbiddenapis.skip>true</forbiddenapis.skip>-->
+<!--        &lt;!&ndash; 1.4.x does not work in Java10+ &ndash;&gt;-->
+<!--        <jboss.marshalling.version>2.0.5.Final</jboss.marshalling.version>-->
+<!--        &lt;!&ndash; This is the minimum supported by Java12+ &ndash;&gt;-->
+<!--        <maven.compiler.source>1.7</maven.compiler.source>-->
+<!--        <maven.compiler.target>1.7</maven.compiler.target>-->
+<!--        &lt;!&ndash; pax-exam does not work on latest Java12 EA 22 build &ndash;&gt;-->
+<!--        <skipOsgiTestsuite>true</skipOsgiTestsuite>-->
+<!--      </properties>-->
+<!--    </profile>-->
 
-    <!-- JDK15 -->
-    <profile>
-      <id>java15</id>
-      <activation>
-        <jdk>15</jdk>
-      </activation>
-      <properties>
-        <argLine.java9.extras />
-        <!-- Export some stuff which is used during our tests -->
-        <argLine.java9>--illegal-access=deny ${argLine.java9.extras}</argLine.java9>
-        <!-- Not use alpn agent as Java11+ supports alpn out of the box -->
-        <argLine.alpnAgent />
-        <forbiddenapis.skip>true</forbiddenapis.skip>
-        <!-- 1.4.x does not work in Java10+ -->
-        <jboss.marshalling.version>2.0.5.Final</jboss.marshalling.version>
-        <!-- This is the minimum supported by Java12+ -->
-        <maven.compiler.source>1.7</maven.compiler.source>
-        <maven.compiler.target>1.7</maven.compiler.target>
-        <!-- pax-exam does not work on latest Java12 EA 22 build -->
-        <skipOsgiTestsuite>true</skipOsgiTestsuite>
-      </properties>
-    </profile>
-    <!-- JDK14 -->
-    <profile>
-      <id>java14</id>
-      <activation>
-        <jdk>14</jdk>
-      </activation>
-      <properties>
-        <argLine.java9.extras />
-        <!-- Export some stuff which is used during our tests -->
-        <argLine.java9>--illegal-access=deny ${argLine.java9.extras}</argLine.java9>
-        <!-- Not use alpn agent as Java11+ supports alpn out of the box -->
-        <argLine.alpnAgent />
-        <forbiddenapis.skip>true</forbiddenapis.skip>
-        <!-- 1.4.x does not work in Java10+ -->
-        <jboss.marshalling.version>2.0.5.Final</jboss.marshalling.version>
-        <!-- This is the minimum supported by Java12+ -->
-        <maven.compiler.source>1.7</maven.compiler.source>
-        <maven.compiler.target>1.7</maven.compiler.target>
-        <!-- pax-exam does not work on latest Java12 EA 22 build -->
-        <skipOsgiTestsuite>true</skipOsgiTestsuite>
-      </properties>
-    </profile>
-    <!-- JDK13 -->
-    <profile>
-      <id>java13</id>
-      <activation>
-        <jdk>13</jdk>
-      </activation>
-      <properties>
-        <argLine.java9.extras />
-        <!-- Export some stuff which is used during our tests -->
-        <argLine.java9>--illegal-access=deny ${argLine.java9.extras}</argLine.java9>
-        <!-- Not use alpn agent as Java11+ supports alpn out of the box -->
-        <argLine.alpnAgent />
-        <forbiddenapis.skip>true</forbiddenapis.skip>
-        <!-- 1.4.x does not work in Java10+ -->
-        <jboss.marshalling.version>2.0.5.Final</jboss.marshalling.version>
-        <!-- This is the minimum supported by Java12+ -->
-        <maven.compiler.source>1.7</maven.compiler.source>
-        <maven.compiler.target>1.7</maven.compiler.target>
-        <!-- pax-exam does not work on latest Java12 EA 22 build -->
-        <skipOsgiTestsuite>true</skipOsgiTestsuite>
-      </properties>
-    </profile>
+<!--    &lt;!&ndash; JDK15 &ndash;&gt;-->
+<!--    <profile>-->
+<!--      <id>java15</id>-->
+<!--      <activation>-->
+<!--        <jdk>15</jdk>-->
+<!--      </activation>-->
+<!--      <properties>-->
+<!--        <argLine.java9.extras />-->
+<!--        &lt;!&ndash; Export some stuff which is used during our tests &ndash;&gt;-->
+<!--        <argLine.java9>&#45;&#45;illegal-access=deny ${argLine.java9.extras}</argLine.java9>-->
+<!--        &lt;!&ndash; Not use alpn agent as Java11+ supports alpn out of the box &ndash;&gt;-->
+<!--        <argLine.alpnAgent />-->
+<!--        <forbiddenapis.skip>true</forbiddenapis.skip>-->
+<!--        &lt;!&ndash; 1.4.x does not work in Java10+ &ndash;&gt;-->
+<!--        <jboss.marshalling.version>2.0.5.Final</jboss.marshalling.version>-->
+<!--        &lt;!&ndash; This is the minimum supported by Java12+ &ndash;&gt;-->
+<!--        <maven.compiler.source>1.7</maven.compiler.source>-->
+<!--        <maven.compiler.target>1.7</maven.compiler.target>-->
+<!--        &lt;!&ndash; pax-exam does not work on latest Java12 EA 22 build &ndash;&gt;-->
+<!--        <skipOsgiTestsuite>true</skipOsgiTestsuite>-->
+<!--      </properties>-->
+<!--    </profile>-->
+<!--    &lt;!&ndash; JDK14 &ndash;&gt;-->
+<!--    <profile>-->
+<!--      <id>java14</id>-->
+<!--      <activation>-->
+<!--        <jdk>14</jdk>-->
+<!--      </activation>-->
+<!--      <properties>-->
+<!--        <argLine.java9.extras />-->
+<!--        &lt;!&ndash; Export some stuff which is used during our tests &ndash;&gt;-->
+<!--        <argLine.java9>&#45;&#45;illegal-access=deny ${argLine.java9.extras}</argLine.java9>-->
+<!--        &lt;!&ndash; Not use alpn agent as Java11+ supports alpn out of the box &ndash;&gt;-->
+<!--        <argLine.alpnAgent />-->
+<!--        <forbiddenapis.skip>true</forbiddenapis.skip>-->
+<!--        &lt;!&ndash; 1.4.x does not work in Java10+ &ndash;&gt;-->
+<!--        <jboss.marshalling.version>2.0.5.Final</jboss.marshalling.version>-->
+<!--        &lt;!&ndash; This is the minimum supported by Java12+ &ndash;&gt;-->
+<!--        <maven.compiler.source>1.7</maven.compiler.source>-->
+<!--        <maven.compiler.target>1.7</maven.compiler.target>-->
+<!--        &lt;!&ndash; pax-exam does not work on latest Java12 EA 22 build &ndash;&gt;-->
+<!--        <skipOsgiTestsuite>true</skipOsgiTestsuite>-->
+<!--      </properties>-->
+<!--    </profile>-->
+<!--    &lt;!&ndash; JDK13 &ndash;&gt;-->
+<!--    <profile>-->
+<!--      <id>java13</id>-->
+<!--      <activation>-->
+<!--        <jdk>13</jdk>-->
+<!--      </activation>-->
+<!--      <properties>-->
+<!--        <argLine.java9.extras />-->
+<!--        &lt;!&ndash; Export some stuff which is used during our tests &ndash;&gt;-->
+<!--        <argLine.java9>&#45;&#45;illegal-access=deny ${argLine.java9.extras}</argLine.java9>-->
+<!--        &lt;!&ndash; Not use alpn agent as Java11+ supports alpn out of the box &ndash;&gt;-->
+<!--        <argLine.alpnAgent />-->
+<!--        <forbiddenapis.skip>true</forbiddenapis.skip>-->
+<!--        &lt;!&ndash; 1.4.x does not work in Java10+ &ndash;&gt;-->
+<!--        <jboss.marshalling.version>2.0.5.Final</jboss.marshalling.version>-->
+<!--        &lt;!&ndash; This is the minimum supported by Java12+ &ndash;&gt;-->
+<!--        <maven.compiler.source>1.7</maven.compiler.source>-->
+<!--        <maven.compiler.target>1.7</maven.compiler.target>-->
+<!--        &lt;!&ndash; pax-exam does not work on latest Java12 EA 22 build &ndash;&gt;-->
+<!--        <skipOsgiTestsuite>true</skipOsgiTestsuite>-->
+<!--      </properties>-->
+<!--    </profile>-->
 
-    <!-- JDK12 -->
-    <profile>
-      <id>java12</id>
-      <activation>
-        <jdk>12</jdk>
-      </activation>
-      <properties>
-        <argLine.java9.extras />
-        <!-- Export some stuff which is used during our tests -->
-        <argLine.java9>--illegal-access=deny ${argLine.java9.extras}</argLine.java9>
-        <!-- Not use alpn agent as Java11+ supports alpn out of the box -->
-        <argLine.alpnAgent />
-        <forbiddenapis.skip>true</forbiddenapis.skip>
-        <!-- 1.4.x does not work in Java10+ -->
-        <jboss.marshalling.version>2.0.5.Final</jboss.marshalling.version>
-        <!-- This is the minimum supported by Java12+ -->
-        <maven.compiler.source>1.7</maven.compiler.source>
-        <maven.compiler.target>1.7</maven.compiler.target>
-        <!-- pax-exam does not work on latest Java12 EA 22 build -->
-        <skipOsgiTestsuite>true</skipOsgiTestsuite>
-      </properties>
-    </profile>
+<!--    &lt;!&ndash; JDK12 &ndash;&gt;-->
+<!--    <profile>-->
+<!--      <id>java12</id>-->
+<!--      <activation>-->
+<!--        <jdk>12</jdk>-->
+<!--      </activation>-->
+<!--      <properties>-->
+<!--        <argLine.java9.extras />-->
+<!--        &lt;!&ndash; Export some stuff which is used during our tests &ndash;&gt;-->
+<!--        <argLine.java9>&#45;&#45;illegal-access=deny ${argLine.java9.extras}</argLine.java9>-->
+<!--        &lt;!&ndash; Not use alpn agent as Java11+ supports alpn out of the box &ndash;&gt;-->
+<!--        <argLine.alpnAgent />-->
+<!--        <forbiddenapis.skip>true</forbiddenapis.skip>-->
+<!--        &lt;!&ndash; 1.4.x does not work in Java10+ &ndash;&gt;-->
+<!--        <jboss.marshalling.version>2.0.5.Final</jboss.marshalling.version>-->
+<!--        &lt;!&ndash; This is the minimum supported by Java12+ &ndash;&gt;-->
+<!--        <maven.compiler.source>1.7</maven.compiler.source>-->
+<!--        <maven.compiler.target>1.7</maven.compiler.target>-->
+<!--        &lt;!&ndash; pax-exam does not work on latest Java12 EA 22 build &ndash;&gt;-->
+<!--        <skipOsgiTestsuite>true</skipOsgiTestsuite>-->
+<!--      </properties>-->
+<!--    </profile>-->
 
-    <!-- JDK11 -->
-    <profile>
-      <id>java11</id>
-      <activation>
-        <jdk>11</jdk>
-      </activation>
-      <properties>
-        <argLine.java9.extras />
-        <!-- Export some stuff which is used during our tests -->
-        <argLine.java9>--illegal-access=deny ${argLine.java9.extras}</argLine.java9>
-        <!-- Not use alpn agent as Java11+ supports alpn out of the box -->
-        <argLine.alpnAgent />
-        <forbiddenapis.skip>true</forbiddenapis.skip>
-        <!-- 1.4.x does not work in Java10+ -->
-        <jboss.marshalling.version>2.0.5.Final</jboss.marshalling.version>
-        <!-- pax-exam does not work on latest Java11 build -->
-        <skipOsgiTestsuite>true</skipOsgiTestsuite>
-      </properties>
-    </profile>
+<!--    &lt;!&ndash; JDK11 &ndash;&gt;-->
+<!--&lt;!&ndash;    <profile>&ndash;&gt;-->
+<!--&lt;!&ndash;      <id>java11</id>&ndash;&gt;-->
+<!--&lt;!&ndash;      <activation>&ndash;&gt;-->
+<!--&lt;!&ndash;        <jdk>11</jdk>&ndash;&gt;-->
+<!--&lt;!&ndash;      </activation>&ndash;&gt;-->
+<!--&lt;!&ndash;      <properties>&ndash;&gt;-->
+<!--&lt;!&ndash;        <argLine.java9.extras />&ndash;&gt;-->
+<!--&lt;!&ndash;        &lt;!&ndash; Export some stuff which is used during our tests &ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;        <argLine.java9>&#45;&#45;illegal-access=deny ${argLine.java9.extras}</argLine.java9>&ndash;&gt;-->
+<!--&lt;!&ndash;        &lt;!&ndash; Not use alpn agent as Java11+ supports alpn out of the box &ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;        <argLine.alpnAgent />&ndash;&gt;-->
+<!--&lt;!&ndash;        <forbiddenapis.skip>true</forbiddenapis.skip>&ndash;&gt;-->
+<!--&lt;!&ndash;        &lt;!&ndash; 1.4.x does not work in Java10+ &ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;        <jboss.marshalling.version>2.0.5.Final</jboss.marshalling.version>&ndash;&gt;-->
+<!--&lt;!&ndash;        &lt;!&ndash; pax-exam does not work on latest Java11 build &ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;        <skipOsgiTestsuite>true</skipOsgiTestsuite>&ndash;&gt;-->
+<!--&lt;!&ndash;      </properties>&ndash;&gt;-->
+<!--&lt;!&ndash;    </profile>&ndash;&gt;-->
 
-    <!-- JDK10 -->
-    <profile>
-      <id>java10</id>
-      <activation>
-        <jdk>10</jdk>
-      </activation>
-      <properties>
-        <argLine.java9.extras />
-        <!-- Export some stuff which is used during our tests -->
-        <argLine.java9>--illegal-access=deny --add-modules java.xml.bind ${argLine.java9.extras}</argLine.java9>
-        <!-- Not use alpn agent as Java10 supports alpn out of the box -->
-        <argLine.alpnAgent />
-        <forbiddenapis.skip>true</forbiddenapis.skip>
-        <!-- Needed because of https://issues.apache.org/jira/browse/MENFORCER-275 -->
-        <enforcer.plugin.version>3.3.0</enforcer.plugin.version>
-        <!-- 1.4.x does not work in Java10+ -->
-        <jboss.marshalling.version>2.0.5.Final</jboss.marshalling.version>
-      </properties>
-    </profile>
+<!--    &lt;!&ndash; JDK10 &ndash;&gt;-->
+<!--    <profile>-->
+<!--      <id>java10</id>-->
+<!--      <activation>-->
+<!--        <jdk>10</jdk>-->
+<!--      </activation>-->
+<!--      <properties>-->
+<!--        <argLine.java9.extras />-->
+<!--        &lt;!&ndash; Export some stuff which is used during our tests &ndash;&gt;-->
+<!--        <argLine.java9>&#45;&#45;illegal-access=deny &#45;&#45;add-modules java.xml.bind ${argLine.java9.extras}</argLine.java9>-->
+<!--        &lt;!&ndash; Not use alpn agent as Java10 supports alpn out of the box &ndash;&gt;-->
+<!--        <argLine.alpnAgent />-->
+<!--        <forbiddenapis.skip>true</forbiddenapis.skip>-->
+<!--        &lt;!&ndash; Needed because of https://issues.apache.org/jira/browse/MENFORCER-275 &ndash;&gt;-->
+<!--        <enforcer.plugin.version>3.3.0</enforcer.plugin.version>-->
+<!--        &lt;!&ndash; 1.4.x does not work in Java10+ &ndash;&gt;-->
+<!--        <jboss.marshalling.version>2.0.5.Final</jboss.marshalling.version>-->
+<!--      </properties>-->
+<!--    </profile>-->
 
-    <!-- JDK9 -->
-    <profile>
-      <id>java9</id>
-      <properties>
-        <argLine.java9.extras />
-        <!-- Export some stuff which is used during our tests -->
-        <argLine.java9>--illegal-access=deny --add-modules java.xml.bind ${argLine.java9.extras}</argLine.java9>
-        <!-- Not use alpn agent as Java9 supports alpn out of the box -->
-        <argLine.alpnAgent />
-        <!-- Skip as maven plugin not works with Java9 yet -->
-        <forbiddenapis.skip>true</forbiddenapis.skip>
-        <!-- Needed because of https://issues.apache.org/jira/browse/MENFORCER-275 -->
-        <enforcer.plugin.version>3.3.0</enforcer.plugin.version>
-      </properties>
-      <activation>
-        <jdk>9</jdk>
-      </activation>
-    </profile>
+<!--    &lt;!&ndash; JDK9 &ndash;&gt;-->
+<!--    <profile>-->
+<!--      <id>java9</id>-->
+<!--      <properties>-->
+<!--        <argLine.java9.extras />-->
+<!--        &lt;!&ndash; Export some stuff which is used during our tests &ndash;&gt;-->
+<!--        <argLine.java9>&#45;&#45;illegal-access=deny &#45;&#45;add-modules java.xml.bind ${argLine.java9.extras}</argLine.java9>-->
+<!--        &lt;!&ndash; Not use alpn agent as Java9 supports alpn out of the box &ndash;&gt;-->
+<!--        <argLine.alpnAgent />-->
+<!--        &lt;!&ndash; Skip as maven plugin not works with Java9 yet &ndash;&gt;-->
+<!--        <forbiddenapis.skip>true</forbiddenapis.skip>-->
+<!--        &lt;!&ndash; Needed because of https://issues.apache.org/jira/browse/MENFORCER-275 &ndash;&gt;-->
+<!--        <enforcer.plugin.version>3.3.0</enforcer.plugin.version>-->
+<!--      </properties>-->
+<!--      <activation>-->
+<!--        <jdk>9</jdk>-->
+<!--      </activation>-->
+<!--    </profile>-->
 
-    <profile>
-      <id>boringssl-mac-aarch64</id>
-      <activation>
-        <os>
-          <!--
-           Automatically active on mac with aarch64 as we only release static boringssl version of
-           netty-tcnative for it.
-         -->
-          <family>mac</family>
-          <arch>aarch64</arch>
-        </os>
-      </activation>
-      <properties>
-        <tcnative.artifactId>netty-tcnative-boringssl-static</tcnative.artifactId>
-        <tcnative.classifier />
-      </properties>
-    </profile>
-    <profile>
-      <id>boringssl-linux-aarch64</id>
-      <activation>
-        <os>
-          <!--
-           Automatically active on linux with aarch64 as we only release static boringssl version of
-           netty-tcnative for it.
-         -->
-          <family>linux</family>
-          <arch>aarch64</arch>
-        </os>
-      </activation>
-      <properties>
-        <tcnative.artifactId>netty-tcnative-boringssl-static</tcnative.artifactId>
-        <tcnative.classifier />
-      </properties>
-    </profile>
-    <profile>
-      <id>boringssl</id>
-      <activation>
-        <!--
-          Automatically active on windows as we only release static boringssl version of
-          netty-tcnative for windows.
-        -->
-        <os>
-          <family>windows</family>
-        </os>
-      </activation>
-      <properties>
-        <tcnative.artifactId>netty-tcnative-boringssl-static</tcnative.artifactId>
-        <tcnative.classifier />
-      </properties>
-    </profile>
-    <profile>
-      <id>leak</id>
-      <properties>
-        <argLine.leak>-Dio.netty.leakDetectionLevel=paranoid -Dio.netty.leakDetection.targetRecords=32</argLine.leak>
-      </properties>
-    </profile>
-    <profile>
-      <id>noPrintGC</id>
-      <properties>
-        <argLine.printGC>-D_</argLine.printGC>
-      </properties>
-    </profile>
-    <profile>
-      <id>noUnsafe</id>
-      <properties>
-        <argLine.noUnsafe>-Dio.netty.noUnsafe=true</argLine.noUnsafe>
-      </properties>
-    </profile>
-    <profile>
-      <!-- Skip many checks for faster turn-around in local builds. -->
-      <id>fast</id>
-      <properties>
-        <forbiddenapis.skip>true</forbiddenapis.skip>
-        <checkstyle.skip>true</checkstyle.skip>
-        <japicmp.skip>true</japicmp.skip>
-        <revapi.skip>true</revapi.skip>
-        <xml.skip>true</xml.skip>
-        <skipShadingTestsuite>true</skipShadingTestsuite>
-        <skipDeploy>true</skipDeploy>
-        <skipTests>true</skipTests>
-        <skipOsgiTestsuite>true</skipOsgiTestsuite>
-        <skipAutobahnTestsuite>true</skipAutobahnTestsuite>
-        <skipHttp2Testsuite>true</skipHttp2Testsuite>
-      </properties>
-    </profile>
-    <profile>
-      <id>coverage</id>
-      <properties>
-        <argLine.coverage>${jacoco.argLine}</argLine.coverage>
-      </properties>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.jacoco</groupId>
-            <artifactId>jacoco-maven-plugin</artifactId>
-            <version>0.7.7.201606060606</version>
-            <executions>
-              <execution>
-                <id>jacoco-prepare-agent</id>
-                <goals>
-                  <goal>prepare-agent</goal>
-                </goals>
-                <configuration>
-                  <propertyName>jacoco.argLine</propertyName>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
+<!--    <profile>-->
+<!--      <id>boringssl-mac-aarch64</id>-->
+<!--      <activation>-->
+<!--        <os>-->
+<!--          &lt;!&ndash;-->
+<!--           Automatically active on mac with aarch64 as we only release static boringssl version of-->
+<!--           netty-tcnative for it.-->
+<!--         &ndash;&gt;-->
+<!--          <family>mac</family>-->
+<!--          <arch>aarch64</arch>-->
+<!--        </os>-->
+<!--      </activation>-->
+<!--      <properties>-->
+<!--        <tcnative.artifactId>netty-tcnative-boringssl-static</tcnative.artifactId>-->
+<!--        <tcnative.classifier />-->
+<!--      </properties>-->
+<!--    </profile>-->
+<!--    <profile>-->
+<!--      <id>boringssl-linux-aarch64</id>-->
+<!--      <activation>-->
+<!--        <os>-->
+<!--          &lt;!&ndash;-->
+<!--           Automatically active on linux with aarch64 as we only release static boringssl version of-->
+<!--           netty-tcnative for it.-->
+<!--         &ndash;&gt;-->
+<!--          <family>linux</family>-->
+<!--          <arch>aarch64</arch>-->
+<!--        </os>-->
+<!--      </activation>-->
+<!--      <properties>-->
+<!--        <tcnative.artifactId>netty-tcnative-boringssl-static</tcnative.artifactId>-->
+<!--        <tcnative.classifier />-->
+<!--      </properties>-->
+<!--    </profile>-->
+<!--    <profile>-->
+<!--      <id>boringssl</id>-->
+<!--      <activation>-->
+<!--        &lt;!&ndash;-->
+<!--          Automatically active on windows as we only release static boringssl version of-->
+<!--          netty-tcnative for windows.-->
+<!--        &ndash;&gt;-->
+<!--        <os>-->
+<!--          <family>windows</family>-->
+<!--        </os>-->
+<!--      </activation>-->
+<!--      <properties>-->
+<!--        <tcnative.artifactId>netty-tcnative-boringssl-static</tcnative.artifactId>-->
+<!--        <tcnative.classifier />-->
+<!--      </properties>-->
+<!--    </profile>-->
+<!--    <profile>-->
+<!--      <id>leak</id>-->
+<!--      <properties>-->
+<!--        <argLine.leak>-Dio.netty.leakDetectionLevel=paranoid -Dio.netty.leakDetection.targetRecords=32</argLine.leak>-->
+<!--      </properties>-->
+<!--    </profile>-->
+<!--    <profile>-->
+<!--      <id>noPrintGC</id>-->
+<!--      <properties>-->
+<!--        <argLine.printGC>-D_</argLine.printGC>-->
+<!--      </properties>-->
+<!--    </profile>-->
+<!--    <profile>-->
+<!--      <id>noUnsafe</id>-->
+<!--      <properties>-->
+<!--        <argLine.noUnsafe>-Dio.netty.noUnsafe=true</argLine.noUnsafe>-->
+<!--      </properties>-->
+<!--    </profile>-->
+<!--    <profile>-->
+<!--      &lt;!&ndash; Skip many checks for faster turn-around in local builds. &ndash;&gt;-->
+<!--      <id>fast</id>-->
+<!--      <properties>-->
+<!--        <forbiddenapis.skip>true</forbiddenapis.skip>-->
+<!--        <checkstyle.skip>true</checkstyle.skip>-->
+<!--        <japicmp.skip>true</japicmp.skip>-->
+<!--        <revapi.skip>true</revapi.skip>-->
+<!--        <xml.skip>true</xml.skip>-->
+<!--        <skipShadingTestsuite>true</skipShadingTestsuite>-->
+<!--        <skipDeploy>true</skipDeploy>-->
+<!--        <skipTests>true</skipTests>-->
+<!--        <skipOsgiTestsuite>true</skipOsgiTestsuite>-->
+<!--        <skipAutobahnTestsuite>true</skipAutobahnTestsuite>-->
+<!--        <skipHttp2Testsuite>true</skipHttp2Testsuite>-->
+<!--      </properties>-->
+<!--    </profile>-->
+<!--    <profile>-->
+<!--      <id>coverage</id>-->
+<!--      <properties>-->
+<!--        <argLine.coverage>${jacoco.argLine}</argLine.coverage>-->
+<!--      </properties>-->
+<!--      <build>-->
+<!--        <plugins>-->
+<!--          <plugin>-->
+<!--            <groupId>org.jacoco</groupId>-->
+<!--            <artifactId>jacoco-maven-plugin</artifactId>-->
+<!--            <version>0.7.7.201606060606</version>-->
+<!--            <executions>-->
+<!--              <execution>-->
+<!--                <id>jacoco-prepare-agent</id>-->
+<!--                <goals>-->
+<!--                  <goal>prepare-agent</goal>-->
+<!--                </goals>-->
+<!--                <configuration>-->
+<!--                  <propertyName>jacoco.argLine</propertyName>-->
+<!--                </configuration>-->
+<!--              </execution>-->
+<!--            </executions>-->
+<!--          </plugin>-->
+<!--        </plugins>-->
+<!--      </build>-->
+<!--    </profile>-->
     <profile>
       <id>jdk8</id>
       <activation>
@@ -573,23 +573,23 @@
         <maven.javadoc.failOnError>false</maven.javadoc.failOnError>
       </properties>
     </profile>
-    <profile>
-      <!--
-      This profile exists because either ALPN or NPN can exits on the class path at once, but not both.
-      The JDK version is typically used to distinguish which should be used but there is some overlap
-      where both could be used.  ALPN is the default and this profile is enabled with a -Dforcenpn=true arugument
-      -->
-      <id>forcenpn</id>
-      <activation>
-        <property>
-          <name>forcenpn</name>
-          <value>true</value>
-        </property>
-      </activation>
-      <properties>
-        <jetty.alpnAgent.option>forceNpn=true</jetty.alpnAgent.option>
-      </properties>
-    </profile>
+<!--    <profile>-->
+<!--      &lt;!&ndash;-->
+<!--      This profile exists because either ALPN or NPN can exits on the class path at once, but not both.-->
+<!--      The JDK version is typically used to distinguish which should be used but there is some overlap-->
+<!--      where both could be used.  ALPN is the default and this profile is enabled with a -Dforcenpn=true arugument-->
+<!--      &ndash;&gt;-->
+<!--      <id>forcenpn</id>-->
+<!--      <activation>-->
+<!--        <property>-->
+<!--          <name>forcenpn</name>-->
+<!--          <value>true</value>-->
+<!--        </property>-->
+<!--      </activation>-->
+<!--      <properties>-->
+<!--        <jetty.alpnAgent.option>forceNpn=true</jetty.alpnAgent.option>-->
+<!--      </properties>-->
+<!--    </profile>-->
   </profiles>
 
   <properties>
