@@ -17,20 +17,29 @@ package io.netty.util;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class HashedWheelTimerTest {
+
+
+    @Test
+    public void testBasicUse() throws Exception {
+        final CountDownLatch latch = new CountDownLatch(1);
+        final long start = System.currentTimeMillis();
+        System.out.println("start at:" + start);
+        HashedWheelTimer wheel = new HashedWheelTimer();
+        wheel.newTimeout(new TimerTask() {
+            @Override
+            public void run(Timeout timeout) throws Exception {
+                System.out.println("cost:" + (System.currentTimeMillis() - start));
+                System.out.println("Hello world!");
+                latch.countDown();
+            }
+        }, 3, TimeUnit.SECONDS);
+        latch.await();
+    }
 
     @Test
     public void testScheduleTimeoutShouldNotRunBeforeDelay() throws InterruptedException {
@@ -68,7 +77,7 @@ public class HashedWheelTimerTest {
     public void testStopTimer() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(3);
         final Timer timerProcessed = new HashedWheelTimer();
-        for (int i = 0; i < 3; i ++) {
+        for (int i = 0; i < 3; i++) {
             timerProcessed.newTimeout(new TimerTask() {
                 @Override
                 public void run(final Timeout timeout) throws Exception {
@@ -81,7 +90,7 @@ public class HashedWheelTimerTest {
         assertEquals(0, timerProcessed.stop().size(), "Number of unprocessed timeouts should be 0");
 
         final Timer timerUnprocessed = new HashedWheelTimer();
-        for (int i = 0; i < 5; i ++) {
+        for (int i = 0; i < 5; i++) {
             timerUnprocessed.newTimeout(new TimerTask() {
                 @Override
                 public void run(Timeout timeout) throws Exception {
@@ -97,7 +106,7 @@ public class HashedWheelTimerTest {
     public void testTimerShouldThrowExceptionAfterShutdownForNewTimeouts() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(3);
         final Timer timer = new HashedWheelTimer();
-        for (int i = 0; i < 3; i ++) {
+        for (int i = 0; i < 3; i++) {
             timer.newTimeout(new TimerTask() {
                 @Override
                 public void run(Timeout timeout) throws Exception {
@@ -121,7 +130,7 @@ public class HashedWheelTimerTest {
     @org.junit.jupiter.api.Timeout(value = 5000, unit = TimeUnit.MILLISECONDS)
     public void testTimerOverflowWheelLength() throws InterruptedException {
         final HashedWheelTimer timer = new HashedWheelTimer(
-            Executors.defaultThreadFactory(), 100, TimeUnit.MILLISECONDS, 32);
+                Executors.defaultThreadFactory(), 100, TimeUnit.MILLISECONDS, 32);
         final CountDownLatch latch = new CountDownLatch(3);
 
         timer.newTimeout(new TimerTask() {
@@ -158,7 +167,7 @@ public class HashedWheelTimerTest {
         for (int i = 0; i < scheduledTasks; i++) {
             long delay = queue.take();
             assertTrue(delay >= timeout && delay < maxTimeout,
-                "Timeout + " + scheduledTasks + " delay " + delay + " must be " + timeout + " < " + maxTimeout);
+                    "Timeout + " + scheduledTasks + " delay " + delay + " must be " + timeout + " < " + maxTimeout);
         }
 
         timer.stop();
@@ -197,7 +206,7 @@ public class HashedWheelTimerTest {
     @Test
     public void testRejectedExecutionExceptionWhenTooManyTimeoutsAreAddedBackToBack() {
         HashedWheelTimer timer = new HashedWheelTimer(Executors.defaultThreadFactory(), 100,
-            TimeUnit.MILLISECONDS, 32, true, 2);
+                TimeUnit.MILLISECONDS, 32, true, 2);
         timer.newTimeout(createNoOpTimerTask(), 5, TimeUnit.SECONDS);
         timer.newTimeout(createNoOpTimerTask(), 5, TimeUnit.SECONDS);
         try {
@@ -212,10 +221,10 @@ public class HashedWheelTimerTest {
 
     @Test
     public void testNewTimeoutShouldStopThrowingRejectedExecutionExceptionWhenExistingTimeoutIsCancelled()
-        throws InterruptedException {
+            throws InterruptedException {
         final int tickDurationMs = 100;
         final HashedWheelTimer timer = new HashedWheelTimer(Executors.defaultThreadFactory(), tickDurationMs,
-            TimeUnit.MILLISECONDS, 32, true, 2);
+                TimeUnit.MILLISECONDS, 32, true, 2);
         timer.newTimeout(createNoOpTimerTask(), 5, TimeUnit.SECONDS);
         Timeout timeoutToCancel = timer.newTimeout(createNoOpTimerTask(), 5, TimeUnit.SECONDS);
         assertTrue(timeoutToCancel.cancel());
@@ -232,10 +241,10 @@ public class HashedWheelTimerTest {
     @Test
     @org.junit.jupiter.api.Timeout(value = 3000, unit = TimeUnit.MILLISECONDS)
     public void testNewTimeoutShouldStopThrowingRejectedExecutionExceptionWhenExistingTimeoutIsExecuted()
-        throws InterruptedException {
+            throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
         final HashedWheelTimer timer = new HashedWheelTimer(Executors.defaultThreadFactory(), 25,
-            TimeUnit.MILLISECONDS, 4, true, 2);
+                TimeUnit.MILLISECONDS, 4, true, 2);
         timer.newTimeout(createNoOpTimerTask(), 5, TimeUnit.SECONDS);
         timer.newTimeout(createCountDownLatchTimerTask(latch), 90, TimeUnit.MILLISECONDS);
 
@@ -266,7 +275,7 @@ public class HashedWheelTimerTest {
     }
 
     @Test
-    public void testOverflow() throws InterruptedException  {
+    public void testOverflow() throws InterruptedException {
         final HashedWheelTimer timer = new HashedWheelTimer();
         final CountDownLatch latch = new CountDownLatch(1);
         Timeout timeout = timer.newTimeout(new TimerTask() {
