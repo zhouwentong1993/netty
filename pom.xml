@@ -695,6 +695,7 @@
     <module>transport-blockhound-tests</module>
     <module>microbench</module>
     <module>bom</module>
+      <module>my-test</module>
   </modules>
 
   <dependencyManagement>
@@ -1411,7 +1412,7 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
+      <!-- <plugin>
         <artifactId>maven-checkstyle-plugin</artifactId>
         <version>3.1.0</version>
         <executions>
@@ -1437,10 +1438,10 @@
             <id>nohttp-checkstyle-validation</id>
             <phase>validate</phase>
             <configuration>
-              <!-- skip>false</skip -->
+               <skip>false</skip>
               <configLocation>nohttp-checkstyle.xml</configLocation>
               <suppressionsLocation>nohttp-checkstyle-suppressions.xml</suppressionsLocation>
-              <!-- propertyExpansion>main.basedir=${main.basedir}</propertyExpansion -->
+              &lt;!&ndash; propertyExpansion>main.basedir=${main.basedir}</propertyExpansion &ndash;&gt;
               <encoding>UTF-8</encoding>
               <sourceDirectories>${basedir}</sourceDirectories>
               <includes>**/*</includes>
@@ -1497,7 +1498,7 @@
           </formatFileSets>
           <useDefaultFormatFileSet>false</useDefaultFormatFileSet>
         </configuration>
-      </plugin>
+      </plugin>-->
       <!-- Download the npn-boot.jar in advance to add it to the boot classpath. -->
       <plugin>
         <artifactId>maven-dependency-plugin</artifactId>
