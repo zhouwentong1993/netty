@@ -30,6 +30,7 @@ import java.util.concurrent.ThreadFactory;
 
 /**
  * Abstract base class for {@link EventLoop}s that execute all its submitted tasks in a single thread.
+ * 是一个只有单线程的 EventLoop，单个线程从任务队列中获取任务，执行者是谁？
  *
  */
 public abstract class SingleThreadEventLoop extends SingleThreadEventExecutor implements EventLoop {

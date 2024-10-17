@@ -500,6 +500,8 @@ public final class NioEventLoop extends SingleThreadEventLoop {
         }
     }
 
+
+    // NioEventLoop 的核心逻辑，也就是这个线程的处理逻辑？
     @Override
     protected void run() {
         int selectCnt = 0;
@@ -516,6 +518,9 @@ public final class NioEventLoop extends SingleThreadEventLoop {
                         // fall-through to SELECT since the busy-wait is not supported with NIO
 
                     case SelectStrategy.SELECT:
+                        // 下次 Select 的时间
+                        // FIXME: 为什么 Select 不直接死循环 Select 呢？等到 Channel 可用的时候，直接被唤醒，这不是挺好的吗？
+                        // FixME：就一个线程，这个也不是问题吧。
                         long curDeadlineNanos = nextScheduledTaskDeadlineNanos();
                         if (curDeadlineNanos == -1L) {
                             curDeadlineNanos = NONE; // nothing on the calendar
@@ -881,6 +886,7 @@ public final class NioEventLoop extends SingleThreadEventLoop {
         }
         // Timeout will only be 0 if deadline is within 5 microsecs
         long timeoutMillis = deadlineToDelayNanos(deadlineNanos + 995000L) / 1000000L;
+        // 这里 Select 的是什么事件呢？
         return timeoutMillis <= 0 ? selector.selectNow() : selector.select(timeoutMillis);
     }
 

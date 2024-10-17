@@ -994,6 +994,7 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
                 boolean success = false;
                 updateLastExecutionTime();
                 try {
+                    // 线程开始执行，把具体的逻辑委托给子类实现
                     SingleThreadEventExecutor.this.run();
                     success = true;
                 } catch (Throwable t) {
