@@ -63,6 +63,7 @@ public abstract class AbstractNioMessageChannel extends AbstractNioChannel {
 
         private final List<Object> readBuf = new ArrayList<Object>();
 
+        // op_read 方法。为什么没有先触发 op_accept 呢？
         @Override
         public void read() {
             assert eventLoop().inEventLoop();
@@ -91,10 +92,10 @@ public abstract class AbstractNioMessageChannel extends AbstractNioChannel {
                     exception = t;
                 }
 
-                int size = readBuf.size();
-                for (int i = 0; i < size; i ++) {
+                for (Object o : readBuf) {
                     readPending = false;
-                    pipeline.fireChannelRead(readBuf.get(i));
+                    // 这里已经读取完了吗？不是说读取的任务应该交给 Worker 吗？
+                    pipeline.fireChannelRead(o);
                 }
                 readBuf.clear();
                 allocHandle.readComplete();

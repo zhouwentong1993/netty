@@ -154,6 +154,7 @@ public class NioServerSocketChannel extends AbstractNioMessageChannel
     // 将 SocketChannel 传递到下一个 worker 节点。
     @Override
     protected int doReadMessages(List<Object> buf) throws Exception {
+        // 现在这里 Accept
         SocketChannel ch = SocketUtils.accept(javaChannel());
 
         try {
