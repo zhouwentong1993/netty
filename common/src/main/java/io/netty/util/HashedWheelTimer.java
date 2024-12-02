@@ -505,10 +505,13 @@ public class HashedWheelTimer implements Timer {
                 final long deadline = waitForNextTick();
                 if (deadline > 0) {
                     int idx = (int) (tick & mask);
+                    // 处理超时的任务
                     processCancelledTasks();
                     HashedWheelBucket bucket =
                             wheel[idx];
+                    // 将任务转发到 bucket 中去
                     transferTimeoutsToBuckets();
+                    // 遍历 bucket 的所有元素，做超时逻辑的判断
                     bucket.expireTimeouts(deadline);
                     tick++;
                 }
@@ -560,6 +563,9 @@ public class HashedWheelTimer implements Timer {
         }
 
         // 处理取消的队列任务
+        // 仍然是死循环处理，Netty 认为一个 ticket 就可以处理完。
+        // 主动提交的超时任务
+        // 相当于惰性删除的模式
         private void processCancelledTasks() {
             for (;;) {
                 HashedWheelTimeout timeout = cancelledTimeouts.poll();
@@ -717,6 +723,7 @@ public class HashedWheelTimer implements Timer {
                 return;
             }
 
+            // 其实就是调用 run 方法
             try {
                 timer.taskExecutor.execute(this);
             } catch (Throwable t) {
@@ -782,7 +789,7 @@ public class HashedWheelTimer implements Timer {
          * Add {@link HashedWheelTimeout} to this bucket.
          */
         public void addTimeout(HashedWheelTimeout timeout) {
-            assert timeout.bucket == null;
+            // assert timeout.bucket == null;
             timeout.bucket = this;
             if (head == null) {
                 head = tail = timeout;
@@ -801,6 +808,7 @@ public class HashedWheelTimer implements Timer {
             HashedWheelTimeout timeout = head;
 
             // process all timeouts
+            // 在每一个 bucket 处理这个
             while (timeout != null) {
                 HashedWheelTimeout next = timeout.next;
                 // 圈数到了，可以被执行了
